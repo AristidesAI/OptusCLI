@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OptusCLI — Router Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+
+  :root {
+    --bg: #0a0e14;
+    --surface: #131820;
+    --surface2: #1a2030;
+    --border: #252e3d;
+    --text: #e0e4ec;
+    --text2: #8896aa;
+    --accent: #5b9bd5;
+    --accent2: #47c9a0;
+    --warn: #e5a94d;
+    --danger: #e0556a;
+    --online: #47c9a0;
+    --offline: #555;
+    --grad1: #667eea;
+    --grad2: #764ba2;
+    --glass: rgba(255,255,255,0.03);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background effects */
+  .bg-effects {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.12;
+    animation: float 20s ease-in-out infinite;
+  }
+  .bg-orb:nth-child(1) {
+    width: 600px; height: 600px;
+    background: var(--grad1);
+    top: -200px; right: -200px;
+    animation-delay: 0s;
+  }
+  .bg-orb:nth-child(2) {
+    width: 500px; height: 500px;
+    background: var(--grad2);
+    bottom: -200px; left: -200px;
+    animation-delay: -10s;
+  }
+  .bg-orb:nth-child(3) {
+    width: 300px; height: 300px;
+    background: var(--accent2);
+    top: 40%; left: 50%;
+    animation-delay: -5s;
+  }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -30px) scale(1.1); }
+    66% { transform: translate(-30px, 20px) scale(0.95); }
+  }
+
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 28px; margin-bottom: 24px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(20px);
+  }
+  .header-brand { display: flex; align-items: center; gap: 14px; }
+  .header-logo {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--grad1), var(--grad2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; color: #fff;
+  }
+  .header-title { font-size: 20px; font-weight: 700; }
+  .header-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .header-stats { display: flex; gap: 24px; }
+  .header-stat { text-align: center; }
+  .header-stat-val { font-size: 22px; font-weight: 700; }
+  .header-stat-val.online { color: var(--online); }
+  .header-stat-lbl { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+  .grid-2 { grid-column: span 2; }
+  .grid-full { grid-column: 1 / -1; }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    transition: border-color 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+  .card-badge {
+    font-size: 11px; padding: 3px 10px; border-radius: 20px;
+    font-weight: 600;
+  }
+  .badge-up { background: rgba(71,201,160,0.15); color: var(--online); }
+  .badge-down { background: rgba(224,85,106,0.15); color: var(--danger); }
+  .badge-info { background: rgba(91,155,213,0.15); color: var(--accent); }
+
+  /* Metric rows */
+  .metric { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .metric:last-child { border: none; }
+  .metric-label { color: var(--text2); font-size: 13px; }
+  .metric-value { font-weight: 500; font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace; }
+  .metric-value.good { color: var(--accent2); }
+  .metric-value.warn { color: var(--warn); }
+
+  /* Device table */
+  .device-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .device-table th {
+    text-align: left; padding: 10px 12px;
+    color: var(--text2); font-weight: 500; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .device-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .device-table tr:hover td { background: var(--glass); }
+  .device-dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    margin-right: 8px;
+  }
+  .device-dot.online { background: var(--online); box-shadow: 0 0 8px var(--online); }
+  .device-dot.offline { background: var(--offline); }
+
+  /* Gauges */
+  .gauge-container { display: flex; justify-content: center; padding: 10px 0; }
+  .gauge {
+    position: relative; width: 120px; height: 60px; overflow: hidden;
+  }
+  .gauge-bg {
+    position: absolute; width: 120px; height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 0deg, var(--accent) calc(var(--pct) * 3.6deg), rgba(255,255,255,0.05) calc(var(--pct) * 3.6deg));
+    bottom: 0;
+  }
+  .gauge-center {
+    position: absolute; width: 80px; height: 80px; border-radius: 50%;
+    background: var(--surface); bottom: -20px; left: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700;
+  }
+  .gauge-label { text-align: center; font-size: 11px; color: var(--text2); margin-top: 6px; }
+
+  /* Bars */
+  .bar-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+  .bar-label { width: 50px; font-size: 11px; color: var(--text2); text-align: right; }
+  .bar-track { flex: 1; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+  .bar-fill.blue { background: linear-gradient(90deg, var(--accent), #7a9fd5); }
+  .bar-fill.green { background: linear-gradient(90deg, var(--accent2), #6dd5a8); }
+  .bar-fill.orange { background: linear-gradient(90deg, var(--warn), #f0c27a); }
+  .bar-val { width: 40px; font-size: 11px; text-align: right; font-family: 'SF Mono', monospace; }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 13px;
+    cursor: pointer; font-family: inherit; transition: all 0.2s;
+  }
+  .btn:hover { border-color: var(--accent); background: rgba(91,155,213,0.1); }
+  .btn.danger { border-color: rgba(224,85,106,0.3); color: var(--danger); }
+  .btn.danger:hover { border-color: var(--danger); background: rgba(224,85,106,0.1); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #6aabe0; }
+  .btn.sm { padding: 5px 12px; font-size: 11px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 18px; }
+  .tab {
+    padding: 8px 16px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; border: none; background: transparent; color: var(--text2);
+    font-family: inherit; transition: all 0.2s;
+  }
+  .tab:hover { background: var(--glass); color: var(--text); }
+  .tab.active { background: var(--surface2); color: var(--text); font-weight: 500; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px; min-width: 400px;
+    max-width: 500px; box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .modal-input {
+    width: 100%; padding: 10px 14px; border-radius: 8px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-size: 13px; font-family: inherit;
+    margin-bottom: 10px;
+  }
+  .modal-input:focus { outline: none; border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+  /* Toasts */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 200; }
+  .toast {
+    padding: 12px 20px; border-radius: 8px; margin-bottom: 8px;
+    font-size: 13px; animation: slideIn 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .toast.success { background: rgba(71,201,160,0.2); border: 1px solid rgba(71,201,160,0.3); color: var(--online); }
+  .toast.error { background: rgba(224,85,106,0.2); border: 1px solid rgba(224,85,106,0.3); color: var(--danger); }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* Pulse animation for live indicator */
+  .live-dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--online); margin-right: 6px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(71,201,160,0.6); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(71,201,160,0); }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+    .grid-2 { grid-column: span 1; }
+    .header { flex-direction: column; gap: 16px; }
+    .header-stats { flex-wrap: wrap; justify-content: center; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="bg-effects">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
+<div class="bg-grid"></div>
+<div class="toast-container" id="toasts"></div>
+<div id="modal-root"></div>
+
+<div class="app">
+  <div class="header">
+    <div class="header-brand">
+      <div class="header-logo">O</div>
+      <div>
+        <div class="header-title">OptusCLI Dashboard</div>
+        <div class="header-subtitle"><span class="live-dot"></span> Live — <span id="h-model">...</span></div>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="header-stat">
+        <div class="header-stat-val online" id="h-uptime">--</div>
+        <div class="header-stat-lbl">Uptime</div>
+      </div>
+      <div class="header-stat">
+        <div class="header-stat-val" id="h-wan">--</div>
+        <div class="header-stat-lbl">WAN</div>
+      </div>
+      <div class="header-stat">
+        <div class="header-stat-val" id="h-devices">0</div>
+        <div class="header-stat-lbl">Devices</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="devices">Devices</button>
+    <button class="tab" data-tab="network">Network</button>
+    <button class="tab" data-tab="wifi">WiFi</button>
+    <button class="tab" data-tab="security">Security</button>
+    <button class="tab" data-tab="advanced">Advanced</button>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div class="tab-content" id="tab-overview">
+    <div class="grid">
+      <div class="card">
+        <div class="card-header"><span class="card-title">System</span><span class="card-badge badge-info" id="sys-model">...</span></div>
+        <div class="metric"><span class="metric-label">Firmware</span><span class="metric-value" id="sys-firmware">...</span></div>
+        <div class="metric"><span class="metric-label">Hardware</span><span class="metric-value" id="sys-hardware">...</span></div>
+        <div class="metric"><span class="metric-label">Serial</span><span class="metric-value" id="sys-serial">...</span></div>
+        <div class="metric"><span class="metric-label">Uptime</span><span class="metric-value" id="sys-uptime">...</span></div>
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button class="btn sm danger" onclick="showReboot()">Reboot</button>
+          <button class="btn sm" onclick="showBackup()">Backup</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">WAN / Internet</span><span class="card-badge badge-up" id="wan-status-badge">...</span></div>
+        <div class="metric"><span class="metric-label">Status</span><span class="metric-value good" id="wan-status">...</span></div>
+        <div class="metric"><span class="metric-label">IPv4 Address</span><span class="metric-value" id="wan-ip">...</span></div>
+        <div class="metric"><span class="metric-label">Gateway</span><span class="metric-value" id="wan-gateway">...</span></div>
+        <div class="metric"><span class="metric-label">DNS Servers</span><span class="metric-value" id="wan-dns">...</span></div>
+        <div class="metric"><span class="metric-label">Uptime</span><span class="metric-value" id="wan-uptime">...</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">DHCP & LAN</span></div>
+        <div class="metric"><span class="metric-label">DHCP Server</span><span class="metric-value" id="dhcp-state">...</span></div>
+        <div class="metric"><span class="metric-label">Router IP</span><span class="metric-value" id="dhcp-router">...</span></div>
+        <div class="metric"><span class="metric-label">Subnet Mask</span><span class="metric-value" id="dhcp-subnet">...</span></div>
+        <div class="metric"><span class="metric-label">DHCP Range</span><span class="metric-value" id="dhcp-range">...</span></div>
+        <div class="metric"><span class="metric-label">Lease Time</span><span class="metric-value" id="dhcp-lease">...</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Real-time Traffic</span></div>
+        <div style="padding:8px 0;">
+          <div class="bar-row"><span class="bar-label">RX</span><div class="bar-track"><div class="bar-fill blue" id="bar-rx" style="width:0%"></div></div><span class="bar-val" id="val-rx">--</span></div>
+          <div class="bar-row"><span class="bar-label">TX</span><div class="bar-track"><div class="bar-fill green" id="bar-tx" style="width:0%"></div></div><span class="bar-val" id="val-tx">--</span></div>
+        </div>
+        <div id="cellular-info" style="display:none;">
+          <div class="metric"><span class="metric-label">Network Type</span><span class="metric-value" id="cell-type">...</span></div>
+          <div class="metric"><span class="metric-label">Signal</span><span class="metric-value" id="cell-signal">...</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">WiFi Radios</span></div>
+        <div id="wifi-radios"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">NTP / Time</span></div>
+        <div class="metric"><span class="metric-label">Status</span><span class="metric-value" id="ntp-status">...</span></div>
+        <div class="metric"><span class="metric-label">Current Time</span><span class="metric-value" id="ntp-now">...</span></div>
+        <div class="metric"><span class="metric-label">Timezone</span><span class="metric-value" id="ntp-tz">...</span></div>
+        <div class="metric"><span class="metric-label">Server 1</span><span class="metric-value" id="ntp-s1">...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEVICES TAB -->
+  <div class="tab-content" id="tab-devices" style="display:none;">
+    <div class="card grid-full">
+      <div class="card-header"><span class="card-title">Connected Devices</span><span id="dev-count" style="font-size:13px; color:var(--text2)"></span></div>
+      <div style="overflow-x:auto;">
+        <table class="device-table">
+          <thead><tr><th></th><th>Name</th><th>IP Address</th><th>MAC Address</th><th>Connection</th><th>Lease</th><th>Actions</th></tr></thead>
+          <tbody id="devices-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- NETWORK TAB -->
+  <div class="tab-content" id="tab-network" style="display:none;">
+    <div class="grid">
+      <div class="card">
+        <div class="card-header"><span class="card-title">DNS Settings</span></div>
+        <div class="metric"><span class="metric-label">Mode</span><span class="metric-value" id="dns-mode">...</span></div>
+        <div class="metric"><span class="metric-label">Provider</span><span class="metric-value" id="dns-provider">...</span></div>
+        <div class="metric"><span class="metric-label">Servers</span><span class="metric-value" id="dns-servers">...</span></div>
+        <button class="btn sm" style="margin-top:10px;" onclick="showDnsModal()">Change DNS</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">WAN IPv4</span></div>
+        <div class="metric"><span class="metric-label">Address</span><span class="metric-value" id="wanv4-addr">...</span></div>
+        <div class="metric"><span class="metric-label">Netmask</span><span class="metric-value" id="wanv4-mask">...</span></div>
+        <div class="metric"><span class="metric-label">Gateway</span><span class="metric-value" id="wanv4-gw">...</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">LAN Statistics</span></div>
+        <div class="metric"><span class="metric-label">RX Bytes</span><span class="metric-value" id="lan-rx">...</span></div>
+        <div class="metric"><span class="metric-label">TX Bytes</span><span class="metric-value" id="lan-tx">...</span></div>
+        <div class="metric"><span class="metric-label">RX Packets</span><span class="metric-value" id="lan-rxp">...</span></div>
+        <div class="metric"><span class="metric-label">TX Packets</span><span class="metric-value" id="lan-txp">...</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">ARP Table</span></div>
+        <div style="max-height:200px; overflow-y:auto;" id="arp-table"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIFI TAB -->
+  <div class="tab-content" id="tab-wifi" style="display:none;">
+    <div class="grid">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Radio Status</span></div>
+        <div id="wifi-status-detail"></div>
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <button class="btn sm" onclick="showWps()">WPS Push</button>
+          <button class="btn sm" onclick="showWifiScan()">Scan Networks</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Band Steering</span></div>
+        <div id="band-steering"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Guest Network</span></div>
+        <div id="guest-network"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECURITY TAB -->
+  <div class="tab-content" id="tab-security" style="display:none;">
+    <div class="grid">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Firewall</span><span class="card-badge badge-info" id="fw-badge">...</span></div>
+        <div class="metric"><span class="metric-label">Level</span><span class="metric-value" id="fw-level">...</span></div>
+        <div class="metric"><span class="metric-label">State</span><span class="metric-value" id="fw-state">...</span></div>
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <button class="btn sm" onclick="setFirewall('off')">Off</button>
+          <button class="btn sm" onclick="setFirewall('low')">Low</button>
+          <button class="btn sm" onclick="setFirewall('medium')">Medium</button>
+          <button class="btn sm" onclick="setFirewall('high')">High</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">NAT / DMZ</span></div>
+        <div class="metric"><span class="metric-label">NAT</span><span class="metric-value" id="nat-enabled">...</span></div>
+        <div class="metric"><span class="metric-label">DMZ Host</span><span class="metric-value" id="nat-dmz">...</span></div>
+        <div class="metric"><span class="metric-label">DMZ State</span><span class="metric-value" id="nat-dmz-state">...</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Parental Controls</span></div>
+        <div id="parental-info"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">UPnP</span></div>
+        <div class="metric"><span class="metric-label">Enabled</span><span class="metric-value" id="upnp-enabled">...</span></div>
+        <div class="metric"><span class="metric-label">Ad Interval</span><span class="metric-value" id="upnp-interval">...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADVANCED TAB -->
+  <div class="tab-content" id="tab-advanced" style="display:none;">
+    <div class="grid">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Port Forwarding Rules</span></div>
+        <div style="max-height:200px; overflow-y:auto;" id="pf-rules"></div>
+        <button class="btn sm" style="margin-top:10px;" onclick="showAddPortForward()">Add Rule</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Diagnostics</span></div>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <input class="modal-input" id="diag-host" placeholder="Host (e.g. 8.8.8.8)" style="margin:0;">
+          <button class="btn sm primary" onclick="runDiag('ping')">Ping</button>
+          <button class="btn sm" onclick="runDiag('traceroute')">Traceroute</button>
+        </div>
+        <div id="diag-result" style="font-family:'SF Mono',monospace; font-size:12px; max-height:300px; overflow-y:auto; white-space:pre-wrap;"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">System Log</span></div>
+        <div id="syslog-content" style="font-family:'SF Mono',monospace; font-size:11px; max-height:250px; overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+
+function fmtBytes(b) { if (!b) return '0 B'; const u = ['B','KB','MB','GB']; let i = 0; let v = parseInt(b); while (v >= 1024 && i < 3) { v /= 1024; i++; } return v.toFixed(1) + ' ' + u[i]; }
+function fmtTime(s) { s = parseInt(s); if (!s || s < 0) return '--'; const d = Math.floor(s/86400); const h = Math.floor((s%86400)/3600); const m = Math.floor((s%3600)/60); return d ? d+'d '+h+'h '+m+'m' : h+'h '+m+'m'; }
+function fmtDur(s) { s = parseInt(s); if (!s) return '--'; const h = Math.floor(s/3600); const m = Math.floor((s%3600)/60); return h+'h '+m+'m'; }
+
+// Tabs
+$$('.tab').forEach(t => t.addEventListener('click', () => {
+  $$('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  $$('.tab-content').forEach(x => x.style.display = 'none');
+  $('#' + 'tab-' + t.dataset.tab).style.display = '';
+}));
+
+// Socket
+const socket = io();
+socket.on('connect', () => socket.emit('startPolling', 3000));
+socket.on('update', updateUI);
+
+function toast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function updateUI(d) {
+  // Header
+  $('#h-model').textContent = d.system.model + ' — ' + d.system.firmware;
+  $('#h-uptime').textContent = fmtDur(d.system.uptime);
+  $('#h-wan').textContent = d.wan.status;
+  $('#h-devices').textContent = d.activeDevices;
+
+  // System
+  $('#sys-model').textContent = d.system.model;
+  $('#sys-firmware').textContent = d.system.firmware;
+  $('#sys-hardware').textContent = d.system.hardware;
+  $('#sys-serial').textContent = d.system.serial;
+  $('#sys-uptime').textContent = fmtDur(d.system.uptime);
+
+  // WAN
+  $('#wan-status-badge').textContent = d.wan.status;
+  $('#wan-status-badge').className = 'card-badge ' + (d.wan.status === 'Up' ? 'badge-up' : 'badge-down');
+  $('#wan-status').textContent = d.wan.status;
+  $('#wan-status').className = 'metric-value ' + (d.wan.status === 'Up' ? 'good' : 'warn');
+  $('#wan-ip').textContent = d.wan.ipv4;
+  $('#wan-gateway').textContent = d.wan.gateway;
+  $('#wan-dns').textContent = d.wan.dns;
+  $('#wan-uptime').textContent = fmtDur(parseInt(d.wan.lastChange) || 0);
+
+  // DHCP
+  const dc = d.lan.dhcp || {};
+  $('#dhcp-state').textContent = dc.state || (dc.enable ? 'Enabled' : 'Disabled');
+  $('#dhcp-router').textContent = dc.iprouter || '--';
+  $('#dhcp-subnet').textContent = dc.subnetmask || '--';
+  $('#dhcp-range').textContent = (dc.minaddress || '') + ' - ' + (dc.maxaddress || '');
+  $('#dhcp-lease').textContent = dc.leasetime ? dc.leasetime + 's' : '--';
+
+  // Traffic bars
+  const rx = d.lan.stats?.rx_bytes || d.lan.stats?.rxBytes || 0;
+  const tx = d.lan.stats?.tx_bytes || d.lan.stats?.txBytes || 0;
+  const maxBW = Math.max(rx, tx, 1);
+  $('#bar-rx').style.width = (rx / maxBW * 100) + '%';
+  $('#bar-tx').style.width = (tx / maxBW * 100) + '%';
+  $('#val-rx').textContent = fmtBytes(rx);
+  $('#val-tx').textContent = fmtBytes(tx);
+
+  // Cellular
+  if (d.cellular && (d.cellular.cellular || d.cellular.status)) {
+    $('#cellular-info').style.display = '';
+    $('#cell-type').textContent = d.cellular.network_type || d.cellular.type || '4G/5G';
+    $('#cell-signal').textContent = d.cellular.signal || d.cellular.rssi || '--';
+  }
+
+  // WiFi radios
+  const wr = $('#wifi-radios');
+  wr.innerHTML = '';
+  for (const [k, v] of Object.entries(d.wifi || {})) {
+    const up = v === 'UP' || v === 'Up';
+    wr.innerHTML += `<div class="metric"><span class="metric-label">${k.replace(/_/g,' ')}</span><span class="metric-value ${up?'good':'warn'}">${v}</span></div>`;
+  }
+
+  // NTP
+  $('#ntp-status').textContent = d.ntp.status || '--';
+  $('#ntp-now').textContent = d.ntp.now || '--';
+  $('#ntp-tz').textContent = (d.ntp.time_zone_name || '') + ' (' + (d.ntp.time_zone || '') + ')';
+  $('#ntp-s1').textContent = d.ntp.server1 || '--';
+
+  // Devices table
+  $('#dev-count').textContent = d.activeDevices + ' active / ' + d.totalDevices + ' total';
+  const dt = $('#devices-table');
+  dt.innerHTML = '';
+  for (const dev of (d.devices || [])) {
+    const active = dev.active === 'true' || dev.active === true;
+    const link = dev.ethernet?.port ? 'Eth' + dev.ethernet.port + ' ' + dev.ethernet.speed + 'M' : (dev.link || 'WiFi');
+    dt.innerHTML += `<tr>
+      <td><span class="device-dot ${active?'online':'offline'}"></span></td>
+      <td>${dev.hostname || (dev.friendlyHostname || '(unknown)')}</td>
+      <td>${dev.ipaddress}</td>
+      <td style="font-family:monospace;font-size:11px">${dev.macaddress}</td>
+      <td>${link}</td>
+      <td>${dev.lease ? dev.lease + 's' : '--'}</td>
+      <td><button class="btn sm" onclick="blockDevice('${dev.macaddress}')">Block</button></td>
+    </tr>`;
+  }
+
+  // DNS config
+  const dnsC = d.dnsConfig || {};
+  $('#dns-mode').textContent = dnsC.dnsMode || 'STATIC';
+  $('#dns-provider').textContent = dnsC.static?.provider || 'DHCP';
+  $('#dns-servers').textContent = dnsC.static?.servers || (dnsC.dynamic?.[0]?.server || '--');
+
+  // WAN v4
+  $('#wanv4-addr').textContent = d.wan.ipv4;
+  $('#wanv4-mask').textContent = d.wan.netmask || '--';
+  $('#wanv4-gw').textContent = d.wan.gateway;
+
+  // LAN stats
+  const ls = d.lan.stats || {};
+  $('#lan-rx').textContent = fmtBytes(ls.rx_bytes || 0);
+  $('#lan-tx').textContent = fmtBytes(ls.tx_bytes || 0);
+  $('#lan-rxp').textContent = (ls.rx_packets || 0).toLocaleString();
+  $('#lan-txp').textContent = (ls.tx_packets || 0).toLocaleString();
+
+  // ARP
+  const arpDiv = $('#arp-table');
+  arpDiv.innerHTML = '';
+  for (const a of (d.arp || []).slice(0, 15)) {
+    arpDiv.innerHTML += `<div class="metric"><span class="metric-label" style="font-family:monospace;font-size:11px">${a.ipaddress || a.ip || '?'}</span><span class="metric-value" style="font-family:monospace;font-size:11px">${a.macaddress || a.mac || '?'}</span></div>`;
+  }
+
+  // WiFi detail
+  const wsd = $('#wifi-status-detail');
+  wsd.innerHTML = '';
+  for (const [k, v] of Object.entries(d.wifi || {})) {
+    wsd.innerHTML += `<div class="metric"><span class="metric-label">${k}</span><span class="metric-value">${v}</span></div>`;
+  }
+
+  // Guest
+  $('#guest-network').textContent = JSON.stringify(d.wifi || {}, null, 2);
+  $('#band-steering').textContent = 'Band steering: ' + JSON.stringify(d.wifi || {});
+
+  // Firewall
+  const fw = d.firewall || {};
+  const levels = {0:'Off',1:'Low',2:'Medium',3:'High',4:'Custom'};
+  $('#fw-badge').textContent = levels[fw.level] || 'Off';
+  $('#fw-level').textContent = levels[fw.level] || fw.level;
+  $('#fw-state').textContent = fw.state || (fw.level == 0 ? 'Disabled' : 'Enabled');
+
+  // NAT
+  const natInfo = d.nat || {};
+  const dmz = natInfo.dmz || {};
+  $('#nat-enabled').textContent = natInfo.enable === 'true' ? 'Enabled' : 'Disabled';
+  $('#nat-dmz').textContent = dmz.ipaddress || '--';
+  $('#nat-dmz-state').textContent = dmz.state || '--';
+
+  // UPnP
+  const up = d.upnp || {};
+  $('#upnp-enabled').textContent = up.enable ? 'Yes' : 'No';
+  $('#upnp-interval').textContent = (up.adv_interval || 0) + 's';
+
+  // Parental
+  const pc = d.parental || {};
+  $('#parental-info').innerHTML = '<div class="metric"><span class="metric-label">Enabled</span><span class="metric-value">' + (pc.enable === 'true' ? 'Yes' : 'No') + '</span></div>';
+
+  // Port forward rules
+  if (d.nat.rules) {
+    let html = '<table class="device-table"><thead><tr><th>Name</th><th>Protocol</th><th>External</th><th>Internal</th><th>Enabled</th></tr></thead><tbody>';
+    for (const r of (d.nat.rules || [])) {
+      html += `<tr><td>${r.name}</td><td>${r.protocol}</td><td>${r.external_port_start || ''}</td><td>${r.internal_ip}:${r.internal_port}</td><td>${r.enable ? 'Yes' : 'No'}</td></tr>`;
+    }
+    html += '</tbody></table>';
+    $('#pf-rules').innerHTML = html;
+  }
+}
+
+// Actions
+async function apiAction(action, endpoint, data) {
+  try {
+    const res = await fetch('/api/action', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action, endpoint, data }),
+    });
+    const j = await res.json();
+    if (j.error) toast(j.error, 'error');
+    else toast('Success', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function setFirewall(level) {
+  const levels = {off:'0',low:'1',medium:'2',high:'3'};
+  apiAction('put', '/api/v1/firewall', { level: levels[level] });
+}
+
+function showReboot() {
+  const m = $('#modal-root');
+  m.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">
+    <div class="modal-title">Reboot Router</div>
+    <p style="color:var(--text2);margin-bottom:16px;">The router will be offline for ~60 seconds.</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="document.querySelector('.modal-overlay').remove()">Cancel</button>
+      <button class="btn danger" onclick="apiAction('post','/api/v1/device/reboot');document.querySelector('.modal-overlay').remove()">Reboot</button>
+    </div>
+  </div></div>`;
+}
+
+function showBackup() {
+  apiAction('get', '/api/v1/BackupManagement/backup');
+}
+
+function showDnsModal() {
+  const m = $('#modal-root');
+  m.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">
+    <div class="modal-title">Set DNS Servers</div>
+    <input class="modal-input" id="dns1" placeholder="Primary DNS (e.g. 1.1.1.1)">
+    <input class="modal-input" id="dns2" placeholder="Secondary DNS (e.g. 8.8.8.8)">
+    <div class="modal-actions">
+      <button class="btn" onclick="document.querySelector('.modal-overlay').remove()">Cancel</button>
+      <button class="btn primary" onclick="const d1=document.getElementById('dns1').value;const d2=document.getElementById('dns2').value;if(d1&&d2){apiAction('put','/api/v1/dhcp',{dnsservers:d1+','+d2});document.querySelector('.modal-overlay').remove()}">Apply</button>
+    </div>
+  </div></div>`;
+}
+
+function showAddPortForward() {
+  const m = $('#modal-root');
+  m.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">
+    <div class="modal-title">Add Port Forward</div>
+    <input class="modal-input" id="pf-name" placeholder="Rule name">
+    <select class="modal-input" id="pf-proto"><option>tcp</option><option>udp</option><option>tcp/udp</option></select>
+    <input class="modal-input" id="pf-ext" placeholder="External port">
+    <input class="modal-input" id="pf-ip" placeholder="Internal IP (e.g. 192.168.0.100)">
+    <input class="modal-input" id="pf-int" placeholder="Internal port">
+    <div class="modal-actions">
+      <button class="btn" onclick="document.querySelector('.modal-overlay').remove()">Cancel</button>
+      <button class="btn primary" onclick="const n=document.getElementById('pf-name').value;const p=document.getElementById('pf-proto').value;const e=document.getElementById('pf-ext').value;const ip=document.getElementById('pf-ip').value;const po=document.getElementById('pf-int').value;if(n&&e&&ip&&po){apiAction('post','/api/v1/nat/rules',{name:n,protocol:p,external_port_start:e,external_port_end:e,internal_ip:ip,internal_port:po,enable:'true'});document.querySelector('.modal-overlay').remove()}">Add</button>
+    </div>
+  </div></div>`;
+}
+
+function showWps() {
+  apiAction('post', '/api/v1/wireless/wps/pushbutton');
+}
+
+function showWifiScan() {
+  toast('Scan initiated...', 'success');
+  apiAction('post', '/api/v2/wireless/wirelessScan/scan');
+}
+
+async function runDiag(type) {
+  const host = $('#diag-host').value || '8.8.8.8';
+  const endpoint = type === 'ping' ? '/api/v1/internet_utilities/ping' : '/api/v1/internet_utilities/traceroute';
+  try {
+    const res = await fetch('/api/action', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: 'post', endpoint, data: { host } }),
+    });
+    const j = await res.json();
+    $('#diag-result').textContent = JSON.stringify(j, null, 2);
+  } catch(e) { $('#diag-result').textContent = 'Error: ' + e.message; }
+}
+
+function blockDevice(mac) {
+  apiAction('post', '/api/v1/wireless/acl/rules', { mac, enable: 'true' });
+}
+</script>
+</body>
+</html>

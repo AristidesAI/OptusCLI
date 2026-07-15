@@ -1,0 +1,29 @@
+{
+  "name": "optuscli",
+  "version": "2.0.0",
+  "description": "Full CLI and Web GUI for Optus Sagemcom FAST5393LTE-A 5G router",
+  "main": "optusctl.js",
+  "bin": {
+    "optusctl": "./optusctl.js"
+  },
+  "scripts": {
+    "start": "node optusctl.js",
+    "web": "node server.js",
+    "dns": "node optusctl.js dns",
+    "devices": "node optusctl.js devices",
+    "wifi": "node optusctl.js wifi",
+    "status": "node optusctl.js status",
+    "wan": "node optusctl.js wan",
+    "nat": "node optusctl.js nat",
+    "firewall": "node optusctl.js firewall",
+    "system": "node optusctl.js system"
+  },
+  "keywords": ["optus", "router", "sagemcom", "cli", "5g", "dns", "pihole"],
+  "license": "MIT",
+  "dependencies": {
+    "argparse": "^2.0.1",
+    "axios": "^1.4.0",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}
