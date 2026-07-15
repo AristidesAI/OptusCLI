@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://www.optus.com.au/content/dam/optus/images/shop/home-internet/devices/5g-modem/optus-5g-modem-front.png" 
+  <img src="https://sincereonetech.com/wp-content/uploads/2024/07/Optus-gateway-f@st-5393-lte-router_7.jpg" 
        alt="Optus Sagemcom FAST5393LTE-A" width="320" style="border-radius:16px;" 
        onerror="this.style.display='none'">
 </p>
