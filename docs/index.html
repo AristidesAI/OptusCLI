@@ -723,23 +723,23 @@ POST /api/v1/device/reboot  # Reboot</code></pre>
   <div class="section" id="why">
     <div class="section-title">Deep Knowledge</div>
     <h2 class="section-heading">How the router works</h2>
-    <div class="grid" style="margin-top:24px;">
-      <div class="card">
+    <div class="grid" style="margin-top:24px;grid-template-columns:repeat(4,1fr);">
+      <div class="card" style="border-bottom:3px solid var(--border);border-right:3px solid var(--border-strong);">
         <div class="card-icon"><img src="icons/desktop.png" alt=""></div>
         <h3>Sagemcom REST Architecture</h3>
         <p>The router runs a proprietary REST server (<code>Server: Sagemcom Rest</code>) that exposes all configuration and state via <code>/api/v1/*</code> endpoints. The Angular frontend (SPA) makes HTTP requests to this API — every button, toggle, and dropdown in the web UI is backed by a REST call.</p>
       </div>
-      <div class="card">
+      <div class="card" style="border-bottom:3px solid var(--border);border-right:3px solid var(--border-strong);">
         <div class="card-icon"><img src="icons/lock.png" alt=""></div>
         <h3>Authentication</h3>
         <p>Firmware SGKY10001970+ uses simple cookie-based auth. POST username + password to <code>/api/v1/login</code>, receive <code>salt</code>, <code>nonce</code>, <code>conid</code> cookies. Send these with all subsequent requests. Sessions last 15 minutes. OptusCLI auto-reconnects on expiry.</p>
       </div>
-      <div class="card">
+      <div class="card" style="border-bottom:3px solid var(--border);">
         <div class="card-icon"><img src="icons/puzzlepiece.png" alt=""></div>
         <h3>Firmware Differences</h3>
         <p>Earlier firmware versions (<em>SGKY10000893</em>) used a challenge-response SHA-512 digest with custom PBKDF2. Newer firmware switched to direct password auth. The legacy crypto code is preserved in the repo but unused on current firmware.</p>
       </div>
-      <div class="card">
+      <div class="card" style="border-bottom:3px solid var(--border);border-right:3px solid var(--border-strong);">
         <div class="card-icon"><img src="icons/clipboard.png" alt=""></div>
         <h3>Discovery</h3>
         <p>151 API endpoints were extracted from the Angular SPA's source bundle (<code>main.*.js</code>, ~4MB). Run <code>optusctl system --discover</code> to probe which ones respond on your router. Different firmware versions expose different endpoints.</p>
