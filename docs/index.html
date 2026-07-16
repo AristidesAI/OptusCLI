@@ -16,7 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="OptusCLI — Take Control of Your Optus Router">
 <meta name="twitter:description" content="CLI and web dashboard for the Sagemcom FAST5393LTE-A. Bypass DNS locks, manage networks, control your hardware.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📡</text></svg>">
+<link rel="icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -219,9 +219,10 @@
   .card-icon {
     width: 40px; height: 40px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; margin-bottom: 16px;
+    margin-bottom: 16px;
     background: var(--purple-glow);
   }
+  .card-icon img { width: 22px; height: 22px; }
   .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
   .card p { font-size: 14px; color: var(--text2); line-height: 1.6; }
 
@@ -333,7 +334,7 @@
   </nav>
 
   <div class="hero">
-    <div class="hero-badge">📡 Sagemcom FAST5393LTE-A</div>
+    <div class="hero-badge"><img src="icons/antenna.png" alt="" style="width:14px;height:14px"> Sagemcom FAST5393LTE-A</div>
     <h1>Full CLI for your <span>Optus 5G Router</span></h1>
     <p>Bypass the locked DNS UI. Manage WiFi, firewall, NAT, and devices. Discover 50+ undocumented API endpoints. All from your terminal or a beautiful web dashboard.</p>
     <div class="hero-actions">
@@ -379,32 +380,32 @@
     <p class="section-sub">Every API endpoint the router exposes, exposed through a clean CLI and a real-time web dashboard.</p>
     <div class="grid" style="margin-top:36px;">
       <div class="card">
-        <div class="card-icon">🔓</div>
+        <div class="card-icon"><img src="icons/lock-open.png" alt=""></div>
         <h3>DNS Bypass</h3>
         <p>Circumvent the router's locked DNS provider dropdown. Set any DNS servers — Pi-hole, AdGuard Home, Cloudflare Gateway, or your own.</p>
       </div>
       <div class="card">
-        <div class="card-icon">📡</div>
+        <div class="card-icon"><img src="icons/antenna.png" alt=""></div>
         <h3>Real-time Dashboard</h3>
         <p>Beautiful web GUI with live Socket.io updates. Traffic bars, device tables, firewall controls, and system metrics — all real-time.</p>
       </div>
       <div class="card">
-        <div class="card-icon">🔌</div>
+        <div class="card-icon"><img src="icons/plug.png" alt=""></div>
         <h3>51+ API Endpoints</h3>
         <p>From DHCP to DDNS, firewall to port forwarding, VoIP to VPN. Discover every endpoint the router exposes with a single command.</p>
       </div>
       <div class="card">
-        <div class="card-icon">🛡️</div>
+        <div class="card-icon"><img src="icons/shield.png" alt=""></div>
         <h3>Firewall & NAT Control</h3>
         <p>Set firewall levels (Off/Low/Medium/High), manage DMZ hosts, add and delete port forwarding rules. Full security control.</p>
       </div>
       <div class="card">
-        <div class="card-icon">📱</div>
+        <div class="card-icon"><img src="icons/iphone.png" alt=""></div>
         <h3>Device Management</h3>
         <p>List connected devices with IP, MAC, link type, and active time. Block devices, set nicknames, export as JSON.</p>
       </div>
       <div class="card">
-        <div class="card-icon">⚡</div>
+        <div class="card-icon"><img src="icons/bolt.png" alt=""></div>
         <h3>System Control</h3>
         <p>Reboot, factory reset, backup config, view logs, run ping and traceroute diagnostics. Full system management.</p>
       </div>
@@ -492,12 +493,12 @@ optusctl dns</code></pre>
         <p style="color:var(--text2);font-size:14px;margin-top:8px;">The CLI writes directly to the router's internal DHCP API — the same API the Angular web UI uses, but without the UI restrictions. Your custom DNS persists across reboots.</p>
       </div>
       <div class="card">
-        <div class="card-icon">🔓</div>
+        <div class="card-icon"><img src="icons/lock-open.png" alt=""></div>
         <h3>Why the UI is locked</h3>
         <p>Optus constrains the DNS dropdown to approved providers. The underlying API accepts any IP — the Angular frontend simply never exposes a free-text field. OptusCLI bypasses the UI layer completely.</p>
       </div>
       <div class="card">
-        <div class="card-icon">🛡️</div>
+        <div class="card-icon"><img src="icons/shield.png" alt=""></div>
         <h3>Safe to use</h3>
         <p>The DNS change is the same API call the official UI makes when you select a provider. There is no risk of bricking the router. Revert anytime with <code>--set 8.8.8.8 8.8.4.4</code>.</p>
       </div>
@@ -510,7 +511,7 @@ optusctl dns</code></pre>
     <p class="section-sub">Every feature of the router, accessible from your terminal.</p>
 
     <div class="cmd-group" style="margin-top:40px;">
-      <h3 class="cmd-group-title">🔍 System & Status</h3>
+      <h3 class="cmd-group-title"><img src="icons/magnifying.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"> System & Status</h3>
       <table class="cmd-table">
         <thead><tr><th>Command</th><th>Description</th></tr></thead>
         <tbody>
@@ -525,7 +526,7 @@ optusctl dns</code></pre>
     </div>
 
     <div class="cmd-group">
-      <h3 class="cmd-group-title">🌐 Network</h3>
+      <h3 class="cmd-group-title"><img src="icons/network.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"> Network</h3>
       <table class="cmd-table">
         <thead><tr><th>Command</th><th>Description</th></tr></thead>
         <tbody>
@@ -540,7 +541,7 @@ optusctl dns</code></pre>
     </div>
 
     <div class="cmd-group">
-      <h3 class="cmd-group-title">📱 Devices</h3>
+      <h3 class="cmd-group-title"><img src="icons/iphone.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"> Devices</h3>
       <table class="cmd-table">
         <thead><tr><th>Command</th><th>Description</th></tr></thead>
         <tbody>
@@ -554,7 +555,7 @@ optusctl dns</code></pre>
     </div>
 
     <div class="cmd-group">
-      <h3 class="cmd-group-title">📶 WiFi</h3>
+      <h3 class="cmd-group-title"><img src="icons/wifi.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"> WiFi</h3>
       <table class="cmd-table">
         <thead><tr><th>Command</th><th>Description</th></tr></thead>
         <tbody>
@@ -567,7 +568,7 @@ optusctl dns</code></pre>
     </div>
 
     <div class="cmd-group">
-      <h3 class="cmd-group-title">🛡️ Security</h3>
+      <h3 class="cmd-group-title"><img src="icons/shield.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"> Security</h3>
       <table class="cmd-table">
         <thead><tr><th>Command</th><th>Description</th></tr></thead>
         <tbody>
@@ -580,7 +581,7 @@ optusctl dns</code></pre>
     </div>
 
     <div class="cmd-group">
-      <h3 class="cmd-group-title">🔌 NAT & Port Forwarding</h3>
+      <h3 class="cmd-group-title"><img src="icons/plug.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"> NAT & Port Forwarding</h3>
       <table class="cmd-table">
         <thead><tr><th>Command</th><th>Description</th></tr></thead>
         <tbody>
@@ -594,7 +595,7 @@ optusctl dns</code></pre>
     </div>
 
     <div class="cmd-group">
-      <h3 class="cmd-group-title">⚡ System Control</h3>
+      <h3 class="cmd-group-title"><img src="icons/bolt.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"> System Control</h3>
       <table class="cmd-table">
         <thead><tr><th>Command</th><th>Description</th></tr></thead>
         <tbody>
@@ -608,7 +609,7 @@ optusctl dns</code></pre>
     </div>
 
     <div class="cmd-group">
-      <h3 class="cmd-group-title">🔧 Advanced</h3>
+      <h3 class="cmd-group-title"><img src="icons/wrench.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"> Advanced</h3>
       <table class="cmd-table">
         <thead><tr><th>Command</th><th>Description</th></tr></thead>
         <tbody>
@@ -628,12 +629,12 @@ optusctl dns</code></pre>
     <h2 class="section-heading">Modern real-time dashboard</h2>
     <p class="section-sub">Launch with <code>npm run web</code> and open <code>http://localhost:3000</code>.</p>
     <div class="grid" style="margin-top:28px;">
-      <div class="card"><div class="card-icon">📊</div><h3>Overview</h3><p>System status, WAN, DHCP, traffic bars, WiFi radios, NTP, cellular signal — all in one place, updated every 3 seconds via WebSocket.</p></div>
-      <div class="card"><div class="card-icon">📱</div><h3>Devices Tab</h3><p>Full device table with online/offline status, IP, MAC, link type, lease time. Block devices with one click.</p></div>
-      <div class="card"><div class="card-icon">🌐</div><h3>Network Tab</h3><p>DNS settings editor, WAN IPv4 info, LAN RX/TX statistics, ARP table viewer.</p></div>
-      <div class="card"><div class="card-icon">📶</div><h3>WiFi Tab</h3><p>Radio status per band, band steering, guest network, WPS push button, network scanner.</p></div>
-      <div class="card"><div class="card-icon">🛡️</div><h3>Security Tab</h3><p>Firewall level selector (off/low/medium/high), NAT/DMZ status, parental controls, UPnP config.</p></div>
-      <div class="card"><div class="card-icon">⚙️</div><h3>Advanced Tab</h3><p>Port forwarding rule manager (add/delete), ping/traceroute diagnostics, system log viewer.</p></div>
+      <div class="card"><div class="card-icon"><img src="icons/chart.png" alt=""></div><h3>Overview</h3><p>System status, WAN, DHCP, traffic bars, WiFi radios, NTP, cellular signal — all in one place, updated every 3 seconds via WebSocket.</p></div>
+      <div class="card"><div class="card-icon"><img src="icons/iphone.png" alt=""></div><h3>Devices Tab</h3><p>Full device table with online/offline status, IP, MAC, link type, lease time. Block devices with one click.</p></div>
+      <div class="card"><div class="card-icon"><img src="icons/network.png" alt=""></div><h3>Network Tab</h3><p>DNS settings editor, WAN IPv4 info, LAN RX/TX statistics, ARP table viewer.</p></div>
+      <div class="card"><div class="card-icon"><img src="icons/wifi.png" alt=""></div><h3>WiFi Tab</h3><p>Radio status per band, band steering, guest network, WPS push button, network scanner.</p></div>
+      <div class="card"><div class="card-icon"><img src="icons/shield.png" alt=""></div><h3>Security Tab</h3><p>Firewall level selector (off/low/medium/high), NAT/DMZ status, parental controls, UPnP config.</p></div>
+      <div class="card"><div class="card-icon"><img src="icons/gear.png" alt=""></div><h3>Advanced Tab</h3><p>Port forwarding rule manager (add/delete), ping/traceroute diagnostics, system log viewer.</p></div>
     </div>
   </div>
 
@@ -670,7 +671,7 @@ optusctl dns</code></pre>
         </div>
       </div>
       <div class="card">
-        <div class="card-icon">🔗</div>
+        <div class="card-icon"><img src="icons/link.png" alt=""></div>
         <h3>How it works</h3>
         <p>The router runs a Sagemcom REST server that exposes its entire state through predictable REST endpoints. The Angular web UI is just a skin — OptusCLI talks directly to the API.</p>
         <div class="code-block" style="margin-top:12px;">
@@ -692,22 +693,22 @@ POST /api/v1/device/reboot  # Reboot</code></pre>
     <h2 class="section-heading">How the router works</h2>
     <div class="grid" style="margin-top:28px;">
       <div class="card">
-        <div class="card-icon">🖥️</div>
+        <div class="card-icon"><img src="icons/desktop.png" alt=""></div>
         <h3>Sagemcom REST Architecture</h3>
         <p>The router runs a proprietary REST server (<code>Server: Sagemcom Rest</code>) that exposes all configuration and state via <code>/api/v1/*</code> endpoints. The Angular frontend (SPA) makes HTTP requests to this API — every button, toggle, and dropdown in the web UI is backed by a REST call.</p>
       </div>
       <div class="card">
-        <div class="card-icon">🔐</div>
+        <div class="card-icon"><img src="icons/lock.png" alt=""></div>
         <h3>Authentication</h3>
         <p>Firmware SGKY10001970+ uses simple cookie-based auth. POST username + password to <code>/api/v1/login</code>, receive <code>salt</code>, <code>nonce</code>, <code>conid</code> cookies. Send these with all subsequent requests. Sessions last 15 minutes. OptusCLI auto-reconnects on expiry.</p>
       </div>
       <div class="card">
-        <div class="card-icon">🧩</div>
+        <div class="card-icon"><img src="icons/puzzlepiece.png" alt=""></div>
         <h3>Firmware Differences</h3>
         <p>Earlier firmware versions (<em>SGKY10000893</em>) used a challenge-response SHA-512 digest with custom PBKDF2. Newer firmware switched to direct password auth. The legacy crypto code is preserved in the repo but unused on current firmware.</p>
       </div>
       <div class="card">
-        <div class="card-icon">📋</div>
+        <div class="card-icon"><img src="icons/clipboard.png" alt=""></div>
         <h3>Discovery</h3>
         <p>151 API endpoints were extracted from the Angular SPA's source bundle (<code>main.*.js</code>, ~4MB). Run <code>optusctl system --discover</code> to probe which ones respond on your router. Different firmware versions expose different endpoints.</p>
       </div>
