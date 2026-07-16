@@ -326,6 +326,9 @@ PORT=8080 npm run web
 
 ---
 
+## Thanks to
+Project based on work done by: https://github.com/CptMeetKat/OptusDNSBypass/tree/main
+
 ## License
 
 MIT
